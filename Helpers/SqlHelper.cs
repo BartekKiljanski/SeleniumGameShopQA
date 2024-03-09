@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace SeleniumGameShopQA.Helpers
 {
-    class MetodSQL
+    class SqlHelper
     {
         /// <summary>
         /// Metoda do pobierania wielu wierszy z bazy danych dla podanych parametrów
@@ -17,7 +17,7 @@ namespace SeleniumGameShopQA.Helpers
         /// <returns></returns>
         public List<T> sqlSelectList<T>(string queryString, object parameters)
         {
-            using (var connection = new SqlConnection(AppSettings.EskokDBConnectionString))
+            using (var connection = new SqlConnection(AppSettings.DefaultConnection))
             {
                 connection.Open();
                 var sqlCommand = connection.Query<T>(queryString, parameters).ToList();
@@ -37,7 +37,7 @@ namespace SeleniumGameShopQA.Helpers
         /// <returns></returns>
         public T sqlSelect<T>(string queryString, object parameters)
         {
-            using (var connection = new SqlConnection(AppSettings.EskokDBConnectionString))
+            using (var connection = new SqlConnection(AppSettings.DefaultConnection))
             {
                 connection.Open();
                 var sqlCommand = connection.Query<T>(queryString, parameters).FirstOrDefault();
@@ -54,7 +54,7 @@ namespace SeleniumGameShopQA.Helpers
         /// <param name="parameters"></param>
         public void executeSqlString(string queryString, object parameters)
         {
-            using (var connection = new SqlConnection(AppSettings.EskokDBConnectionString))
+            using (var connection = new SqlConnection(AppSettings.DefaultConnection))
             {
                 connection.Open();
                 connection.Execute(queryString, parameters);

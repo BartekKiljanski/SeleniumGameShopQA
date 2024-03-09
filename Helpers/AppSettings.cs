@@ -6,40 +6,22 @@ namespace SeleniumGameShopQA.Helpers
 {
     public class AppSettings
     {
-        /// <summary>
-        /// Obiekt danych z sekcji appSettings z pliku konfiguracyjnego.
-        /// </summary>
-        static IConfigurationRoot configuration = ConfigurationHelper.GetApplicationConfiguration(TestContext.CurrentContext.TestDirectory);
+        private static IConfigurationRoot Configuration { get; set; }
 
-        /// <summary>
-        /// Adres strony WebSite-a.
-        /// </summary>
-        public static string WebSitePage { get { return configuration.GetValue(typeof(string), "AppSettings:WebSitePage").ToString(); } }
-        public static string Driver { get { return configuration.GetValue(typeof(string), "AppSettings:Driver").ToString(); } }
-        /// <summary>
-        /// Parametry połączenia z bazą Eskoku.
-        /// </summary>
-        public static string EskokDBConnectionString { get { return configuration.GetValue(typeof(string), "AppSettings:EskokDBConnectionString").ToString(); } }
-        /// <summary>
-        /// Numer użytkownika panelu nadzorcy.
-        /// </summary>
-        public static string UserName { get { return configuration.GetValue(typeof(string), "AppSettings:UserName").ToString(); } }
-        /// <summary>
-        /// Hasło użytkownika panelu nadzorcy.
-        /// </summary>
-        public static string UserPassword { get { return configuration.GetValue(typeof(string), "AppSettings:UserPassword").ToString(); } }
-        /// <summary>
-        /// Nowe hasło użytkownika eskok.
-        /// </summary>
-        public static string UserNewPassword { get { return configuration.GetValue(typeof(string), "AppSettings:UserNewPassword").ToString(); } }
-        /// <summary>
-        /// TimeOut na usługach
-        /// </summary>
-        public static int Timeout {get { return Int32.Parse(configuration.GetValue(typeof(string), "AppSettings:TimeOutService").ToString()); } }
-        /// <summary>
-        /// Adres kolekcji usług
-        /// </summary>
-        public static string UrlService {get { return configuration.GetValue(typeof(string), "AppSettings:UrlService").ToString(); } }
+        static AppSettings()
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
+            Configuration = builder.Build();
+        }
+
+        public static string WebSitePage => Configuration["AppSettings:WebSitePage"];
+        public static string Driver => Configuration["AppSettings:Driver"];
+        public static string DefaultConnection => Configuration["AppSettings:DefaultConnection"];
+        public static string AdminName => Configuration["AppSettings:AdminName"];
+        public static string AdminPassword => Configuration["AppSettings:AdminPassword"];
+     
     }
 }

@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using MathNet.Numerics;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.IE;
@@ -10,23 +11,33 @@ namespace SeleniumGameShopQA.Selenium
 	{
 		public static IWebDriver GetDriver()
 		{
-			string driver = Helpers.AppSettings.Driver;
-			Enum.TryParse(driver, out DriverName dirverName);
-			ChromeOptions chromeOptions = new ChromeOptions();
-			chromeOptions.AddArgument("incognito");
+            string driver = Helpers.AppSettings.Driver;
+            Enum.TryParse(driver, out DriverName driverName);
+            IWebDriver webDriver; // Deklaracja zmiennej przed switch
 
-            switch (dirverName)
-			{
-				case DriverName.Chrome:
-					return new ChromeDriver(chromeOptions);
-				case DriverName.Firefox:
-					return new FirefoxDriver();
-				case DriverName.Ie:
-					return new InternetExplorerDriver();
-				default:
-					return new ChromeDriver(chromeOptions);
-			}
-		}
+            ChromeOptions chromeOptions = new ChromeOptions();
+            chromeOptions.AddArgument("incognito");
+
+            switch (driverName)
+            {
+                case DriverName.Chrome:
+                    webDriver = new ChromeDriver(chromeOptions);
+                    break;
+                case DriverName.Firefox:
+                    webDriver = new FirefoxDriver();
+                    break;
+                case DriverName.Ie:
+                    webDriver = new InternetExplorerDriver();
+                    break;
+                default:
+                    webDriver = new ChromeDriver(chromeOptions);
+                    break;
+            }
+            webDriver.Manage().Window.Size = new System.Drawing.Size(2560, 1960);
+
+            return webDriver;
+        }
+       
 	}
 
 	public enum DriverName

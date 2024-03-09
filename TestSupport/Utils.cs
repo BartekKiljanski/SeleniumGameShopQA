@@ -1,5 +1,6 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
 using System;
@@ -14,6 +15,11 @@ namespace SeleniumGameShopQA.Selenium
     public class Utils
     {
         static IWebDriver driver = null;
+        public static void InitializeDriver()
+        {
+            // driver jest inicjowany tutaj, na przykład:
+            driver = new ChromeDriver();
+        }
 
         /// <summary>
         /// Uruchamia przeglądarkę zgodną z ustawionym w appsetingsach web driverem.
@@ -289,6 +295,32 @@ namespace SeleniumGameShopQA.Selenium
         }
 
         /// <summary>
+        /// Czyści wartość elementu (np. textbox'a) o podanym lokatorze.
+        /// </summary>
+        /// <param name="xpath">Lokator obiektu</param>
+        /// <param name="timeSpan">Maksymalny czas oczekiwania na obiekt</param>
+        /// <param name="message">Opcjonalnie:Treść błędu przy niepowodzeniu</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static void ClearById(string id, TimeSpan timeSpan, string message = null)
+        {
+            WebDriverWait wait = new WebDriverWait(driver, timeSpan);
+            try
+            {
+                IWebElement elementToClear = wait.Until(ExpectedConditions.ElementToBeClickable(By.Id(id)));
+                elementToClear.Clear();
+            }
+            catch (WebDriverTimeoutException)
+            {
+                throw new Exception($"Element with ID: '{id}' was not clickable after {timeSpan.TotalSeconds} seconds. {message}");
+            }
+            catch (NoSuchElementException)
+            {
+                throw new Exception($"Element with ID: '{id}' was not found. {message}");
+            }
+        }
+
+        /// <summary>
         /// Zamyka okno przeglądarki.
         /// </summary>
         public static void CloseWindow()
@@ -401,5 +433,84 @@ namespace SeleniumGameShopQA.Selenium
                 driver = null;
             }
         }
+
+        /// <summary>
+        /// Wpisuje tekst do edytora TinyMCE.
+        /// </summary>
+        /// <param name="frameId">Identyfikator iframe edytora TinyMCE.</param>
+        /// <param name="text">Tekst do wpisania w edytorze.</param>
+        /// <param name="timeSpan">Maksymalny czas oczekiwania na załadowanie edytora.</param>
+        public static void EnterTextIntoTinyMCE(string frameId, string text, TimeSpan timeSpan)
+        {
+            WebDriverWait wait = new WebDriverWait(driver, timeSpan);
+
+            try
+            {
+                // Oczekiwanie na załadowanie iframe edytora TinyMCE
+                wait.Until(ExpectedConditions.FrameToBeAvailableAndSwitchToIt(frameId));
+
+                // Znalezienie elementu body w edytorze TinyMCE
+                IWebElement body = driver.FindElement(By.CssSelector("body"));
+
+                // Weryfikacja, czy element body jest edytowalny
+                if (body.GetAttribute("contenteditable") == "true")
+                {
+                    // Wyczyszczenie istniejącego tekstu i wpisanie nowego
+                    body.Clear();
+                    body.SendKeys(text);
+                }
+
+                // Przełączenie się z powrotem do głównego dokumentu
+                driver.SwitchTo().DefaultContent();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"There was an error while trying to enter text into TinyMCE: {ex.Message}");
+            }
+        }
+
+        public static void ScrollToElementAndClick(By by, TimeSpan timeSpan)
+        {
+            WebDriverWait wait = new WebDriverWait(driver, timeSpan);
+            try
+            {
+                var element = wait.Until(ExpectedConditions.ElementIsVisible(by));
+                Actions actions = new Actions(driver);
+                actions.MoveToElement(element);
+                actions.Perform();
+                wait.Until(ExpectedConditions.ElementToBeClickable(by)).Click();
+            }
+            catch (WebDriverTimeoutException)
+            {
+                throw new Exception($"Element with locator: '{by}' was not clickable after {timeSpan.TotalSeconds} seconds.");
+            }
+            catch (NoSuchElementException)
+            {
+                throw new Exception($"Element with locator: '{by}' was not found.");
+            }
+        }
+
+
+        public static void ClearAndSendKeysById(string id, TimeSpan timeSpan, string keys, string message = null)
+        {
+            WebDriverWait wait = new WebDriverWait(driver, timeSpan);
+            try
+            {
+                IWebElement elementToInteract = wait.Until(ExpectedConditions.ElementToBeClickable(By.Id(id)));
+                elementToInteract.Clear(); // Czyści pole tekstowe
+                elementToInteract.SendKeys(keys); // Wpisuje tekst
+            }
+            catch (WebDriverTimeoutException)
+            {
+                throw new Exception($"Element with ID: '{id}' was not clickable after {timeSpan.TotalSeconds} seconds. {message}");
+            }
+            catch (NoSuchElementException)
+            {
+                throw new Exception($"Element with ID: '{id}' was not found. {message}");
+            }
+        }
+
+
+
     }
 }
